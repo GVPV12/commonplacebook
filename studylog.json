@@ -1,0 +1,47 @@
+[
+  {
+    "id": "jp-001",
+    "date": "21/Apr/2026",
+    "subject": "日本語",
+    "topic": "Gramática: て-form",
+    "source": "Bunpro",
+    "sourceType": "read",
+    "emoji": "🗾",
+    "images": [
+      "img/8.png",
+      "img/acecake.gif" 
+    ],
+    "ratings": {
+      "concentration": 4,
+      "difficulty": 3,
+      "learned": 5,
+      "newThings": 4,
+      "productive": 5,
+      "enjoyed": 4
+    },
+    "summary": "Aprendí cómo usar la て-form para conectar acciones y hacer peticiones.",
+    "favorites": "Te-form + ください = forma educada de pedir algo.",
+    "thoughts": "Fue más fácil de lo que esperaba. Me gustó mucho el patrón."
+  },
+  {
+    "id": "jp-002",
+    "date": "20/Apr/2026",
+    "subject": "日本語",
+    "topic": "Kanji: 日 月 山",
+    "source": "WaniKani",
+    "sourceType": "listen+read",
+    "emoji": "🗾",
+    "images": [],
+    "ratings": {
+      "concentration": 3,
+      "difficulty": 2,
+      "learned": 4,
+      "newThings": 3,
+      "productive": 3,
+      "enjoyed": 5
+    },
+    "summary": "",
+    "favorites": "",
+    "thoughts": "Los kanji de naturaleza son muy bonitos visualmente."
+  }
+]

@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STARMOON — Commonplace Book</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #00ffff;
+      --magenta: #ff00ff;
+      --bg: #080818;
+      --bg2: #0d0d20;
+      --bg3: #0a0a1e;
+      --border: #00ffff22;
+      --border-m: #ff00ff22;
+      --text: #ccc;
+      --dim: #555;
+      --green: #39ff14;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: 'MS Gothic','ＭＳ ゴシック','Meiryo',monospace;
+      color: var(--text);
+    }
+
+    /* Scanlines */
+    body::after {
+      content:'';
+      position:fixed;inset:0;
+      background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 3px);
+      pointer-events:none; z-index:9999;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 36px;
+      background: linear-gradient(90deg, #ff00ff, #8800cc, #00ffff);
+      padding: 0 14px;
+      position: sticky; top:0; z-index:200;
+    }
+
+    .topbar-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: #fff;
+      text-shadow: 1px 1px 0 #000;
+      letter-spacing: 1px;
+    }
+
+    .topbar-links {
+      display: flex;
+      gap: 0;
+    }
+
+    .topbar-link {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      padding: 0 10px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      border-left: 1px solid rgba(0,0,0,0.2);
+      transition: background 0.1s;
+    }
+    .topbar-link:hover { background: rgba(0,0,0,0.2); color: #fff; }
+
+    /* ── MAIN LAYOUT ── */
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 36px);
+    }
+
+    /* ── LEFT SIDEBAR: TABS ── */
+    .left-tabs {
+      width: 220px;
+      min-width: 220px;
+      background: #070712;
+      border-right: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 36px;
+      height: calc(100vh - 36px);
+      overflow-y: auto;
+    }
+
+    .left-tabs::-webkit-scrollbar { width: 3px; }
+    .left-tabs::-webkit-scrollbar-thumb { background: var(--magenta); }
+
+    .tabs-header {
+      padding: 14px 14px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tabs-header-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--cyan);
+      text-shadow: 0 0 8px var(--cyan);
+      letter-spacing: 1px;
+    }
+
+    .tabs-header-sub {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5px;
+      color: var(--dim);
+      margin-top: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .tab-section {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5px;
+      color: var(--magenta);
+      letter-spacing: 2px;
+      padding: 10px 14px 4px;
+    }
+
+    .tab-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 14px;
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: all 0.1s;
+    }
+
+    .tab-item:hover { background: rgba(0,255,255,0.05); border-left-color: var(--cyan); }
+    .tab-item.active { background: rgba(0,255,255,0.08); border-left-color: var(--cyan); }
+
+    .tab-icon { font-size: 13px; flex-shrink:0; }
+
+    .tab-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5.5px;
+      color: #777;
+      letter-spacing: 0.5px;
+      line-height: 1.5;
+    }
+
+    .tab-item.active .tab-label { color: var(--cyan); }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+    }
+
+    .content-panel { display: none; }
+    .content-panel.active { display: block; }
+
+    /* ── PANEL HEADER ── */
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 22px 14px;
+      border-bottom: 1px solid var(--border);
+      background: #09091a;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .panel-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--cyan);
+      text-shadow: 0 0 10px var(--cyan);
+      letter-spacing: 2px;
+    }
+
+    .panel-sub {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5.5px;
+      color: var(--dim);
+      letter-spacing: 1px;
+    }
+
+    .panel-body {
+      padding: 20px 22px 40px;
+    }
+
+    /* ── RIGHT SIDEBAR: INDEX TABS ── */
+    .right-tabs {
+      width: 34px;
+      min-width: 34px;
+      background: #060610;
+      border-left: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: sticky;
+      top: 36px;
+      height: calc(100vh - 36px);
+    }
+
+    .r-tab {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      padding: 14px 6px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      width: 100%;
+      text-align: center;
+      transition: all 0.1s;
+    }
+
+    .r-tab:hover { color: var(--cyan); background: rgba(0,255,255,0.05); }
+    .r-tab.active { color: var(--cyan); background: rgba(0,255,255,0.1); border-right: 2px solid var(--cyan); }
+
+    /* ── TRACKLIST — diseño vaporwave con columnas extra ── */
+.track-item {
+  display: grid;
+  grid-template-columns: 44px 1fr 140px 100px 80px 90px 110px;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+.track-item:hover { background: rgba(0,255,255,0.03); }
+
+/* col separators */
+.track-item > * {
+  padding: 12px 10px;
+  border-right: 1px solid #0d0d1a;
+}
+.track-item > *:last-child { border-right: none; }
+
+/* emoji col */
+.tc-emoji {
+  font-size: 24px;
+  text-align: center;
+  filter: drop-shadow(0 0 4px rgba(0,255,255,.25));
+  padding: 12px 6px !important;
+}
+
+/* title + status col */
+.tc-main {}
+.tc-title { font-size: 10px; color: #ddd; margin-bottom: 4px; }
+.tc-status {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 4px; padding: 2px 5px;
+  border: 1px solid; display: inline-block;
+}
+.tc-reading   { color: #00ffff; border-color: #00ffff; }
+.tc-playing   { color: #39ff14; border-color: #39ff14; }
+.tc-watching  { color: #ffaa00; border-color: #ffaa00; }
+.tc-done      { color: #555;    border-color: #555;    text-decoration:line-through; }
+.tc-paused    { color: #ff00ff; border-color: #ff00ff; }
+.tc-listening { color: #00ffff; border-color: #00ffff; }
+
+/* subtitle col */
+.tc-sub { font-size: 11px; color: #555; font-style: italic; }
+
+/* genres col */
+.tc-genres { display: flex; flex-wrap: wrap; gap: 3px; }
+.tc-tag {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 3.5px; padding: 2px 4px;
+  border: 1px solid #1a1a30; color: #444;
+}
+
+/* link col */
+.tc-link-cell {}
+.tc-link {
+  color: #00ffff; text-decoration: none;
+  font-size: 10px;
+  display: flex; align-items: center; gap: 4px;
+}
+.tc-link:hover { color: #ff00ff; }
+.tc-empty { color: #2a2a2a; font-size: 10px; }
+
+/* state col */
+.tc-state {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 4px; padding: 2px 6px; border: 1px solid;
+  display: inline-block; white-space: nowrap;
+}
+.tc-ongoing   { color: #39ff14; border-color: #39ff14; }
+.tc-completed { color: #555;    border-color: #555; }
+
+/* progress col */
+.tc-prog {}
+.tc-bar {
+  height: 5px; background: #050510;
+  border: 1px solid #1a1a30; overflow: hidden; margin-bottom: 4px;
+}
+.tc-bar-fill { height: 100%; background: linear-gradient(90deg,#ff00ff,#00ffff); }
+.tc-pct {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 5px; color: #00ffff; text-align: right;
+}
+
+/* header row */
+/* header row */
+.track-table-header {
+  display: grid;
+  grid-template-columns: 44px 1fr 140px 100px 80px 90px 110px;
+  border-bottom: 1px solid #ff00ff33;
+  background: #060610;
+}
+.track-table-header > span {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 5.5px; color: #ff00ff;
+  letter-spacing: 1px; padding: 6px 10px;
+  border-right: 1px solid #0d0d1a;
+}
+.track-table-header > span:first-child { padding: 6px; }
+.track-table-header > span:last-child  { border-right: none; }
+
+/* ── LAPTOP: tamaños tracklist ── */
+.tc-title  { font-size: 12px; }
+.tc-sub    { font-size: 12px; }
+.tc-tag    { font-size: 6px; }
+.tc-status { font-size: 5px; }
+.tc-state  { font-size: 6px; }
+.tc-pct    { font-size: 5.5px; }
+.tc-link   { font-size: 11px; }
+
+/* intro text */
+.track-intro {
+  font-size: 11px !important;
+
+  font-family: 'MS Gothic','Meiryo',monospace;
+  padding-bottom: 21px;
+  display: block;
+}
+
+/* hook col: oculto por defecto (laptop) */
+.tc-hook-col   { display: none !important; }
+.tc-hook-inline{ display: block; }
+
+/* ── MONITOR (1440px+): columna hook separada ── */
+@media (min-width: 1440px) {
+  .track-item {
+    grid-template-columns: 44px 1fr 160px 130px 140px 110px 100px 130px !important;
+  }
+  .track-table-header {
+    grid-template-columns: 44px 1fr 160px 130px 140px 110px 100px 130px !important;
+  }
+  .track-table-header > span { font-size: 6px; }
+
+  /* mostrar col hook, ocultar inline */
+  .tc-hook-col    { display: block !important; }
+  .tc-hook-inline { display: none !important; }
+
+  /* textos más grandes */
+  .tc-title  { font-size: 13px; }
+  .tc-sub    { font-size: 13px; }
+  .tc-tag    { font-size: 5px; }
+  .tc-status { font-size: 6.3px; }
+  .tc-state  { font-size: 6.5px; }
+  .tc-pct    { font-size: 6.5px; }
+  .tc-link   { font-size: 12px; }
+}
+
+    /* ── REVIEWS ── */
+    .review-card {
+      background: #09091a;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--cyan);
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+
+    .review-header {
+      background: linear-gradient(90deg, #ff00ff22, #00ffff11);
+      border-bottom: 1px solid var(--border);
+      padding: 7px 12px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px;
+      color: var(--magenta);
+      display: flex;
+      justify-content: space-between;
+      letter-spacing: 1px;
+    }
+
+    .review-body {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 14px;
+    }
+
+    .review-cover {
+      width: 60px; height: 84px;
+      background: linear-gradient(135deg, #1a0044, #003355);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+    }
+
+    .review-title {
+      font-size: 12px;
+      color: #eee;
+      margin-bottom: 2px;
+    }
+
+
+
+    .review-author {
+      font-size: 11px;
+      color: var(--dim);
+      font-style: italic;
+      margin-bottom: 7px;
+    }
+
+    .stars { font-size: 13px; color: var(--cyan); margin-bottom: 7px; }
+
+    .review-opinion {
+      font-size: 12px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    /* ── WRITINGS ── */
+    .writing-item {
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .writing-type {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5.5px;
+      color: var(--magenta);
+      letter-spacing: 1.5px;
+
+      margin-bottom: 8px;
+    }
+
+    .writing-title {
+      font-size: 12px;
+      color: #eee;
+      margin-bottom: 10px;
+    }
+
+    .writing-body {
+      font-size: 13px;
+      line-height: 2;
+      color: #aaa;
+    }
+
+    .writing-body.poem {
+      font-style: italic;
+      padding-left: 18px;
+      border-left: 2px solid var(--border);
+      color: #ccc;
+    }
+
+    /* ── MICROBLOGS ── */
+    .micro-entry {
+      background: #050510;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--cyan);
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+
+    .micro-date {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6.5px;
+      color: var(--magenta);
+      margin-bottom: 7px;
+    }
+
+    .micro-text {
+      font-size: 13px;
+      line-height: 1.8;
+      color: #bbb;
+    }
+
+    .micro-mood {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--dim);
+    }
+
+
+
+    /* ── SONGS ── */
+    .song-item {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .song-num {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px;
+      color: #333;
+      text-align: right;
+      padding-top: 2px;
+    }
+
+    .song-title { font-size: 13px; color: #ddd; }
+    .song-translation { font-size: 11px; color: var(--cyan); margin-top: 2px; font-style: italic; }
+    .song-artist {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5px;
+      color: var(--dim);
+      margin-top: 4px;
+    }
+
+    /* ── JAPANESE ── */
+    .jp-card {
+      background: #09091a;
+      border: 1px solid var(--border);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .jp-level {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: var(--cyan);
+      text-shadow: 0 0 6px var(--cyan);
+      margin-bottom: 14px;
+      letter-spacing: 1px;
+    }
+
+    .jp-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .jp-label {
+      font-size: 11px;
+      color: var(--dim);
+      width: 90px;
+      flex-shrink: 0;
+    }
+
+    .jp-bar {
+      flex: 1;
+      height: 7px;
+      background: #050510;
+      border: 1px solid #1a1a30;
+    }
+
+    .jp-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--magenta), var(--cyan));
+    }
+
+    .jp-val {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5.5px;
+      color: var(--green);
+      width: 32px;
+      text-align: right;
+    }
+
+    .jp-resources {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .jp-res-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5.5px;
+      color: var(--magenta);
+      margin-bottom: 10px;
+      letter-spacing: 1.5px;
+    }
+
+    .res-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #aaa;
+      text-decoration: none;
+      padding: 4px 0;
+      border-bottom: 1px solid #0d0d1a;
+      transition: color 0.1s;
+    }
+    .res-link:hover { color: var(--cyan); }
+    .res-link::before { content: '▸'; color: var(--cyan); font-size: 10px; }
+
+    /* ── SECTION LABEL ── */
+    .sec-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px;
+      color: var(--cyan);
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px var(--cyan);
+      margin-bottom: 18px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* scrollbars */
+    ::-webkit-scrollbar { width:5px; }
+    ::-webkit-scrollbar-track { background: #050510; }
+    ::-webkit-scrollbar-thumb { background: var(--magenta); }
+
+    /* responsive */
+    @media (max-width: 768px) {
+      .right-tabs { display: none; }
+      .left-tabs { width: 100%; min-width: 100%; height: auto; position: relative; top:0; flex-direction: row; flex-wrap: wrap; }
+      .tab-item { width: auto; flex-shrink: 0; }
+      .layout { flex-direction: column; }
+    }
+
+    .track-tag { font-family: 'Press Start 2P', monospace; font-size: 4px; padding: 2px 5px; border: 1px solid var(--brd); color: var(--dim); }
+.track-hook { font-size: 10px; color: #aaa; font-style: italic; margin-top: 3px; }
+.track-chapter { font-family: 'Press Start 2P', monospace; font-size: 4.5px; color: var(--dim); margin-top: 4px; }
+.track-link { font-size: 10px; color: var(--c); text-decoration: none; }
+.track-link:hover { color: var(--m); }
+.s-ongoing { color: var(--g); border-color: var(--g); }
+.s-completed { color: var(--dim); border-color: var(--dim); }
+
+
+/* ── BIBLIOTECA grid ── */
+.biblioteca-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 16px;
+}
+.bib-card {
+  display: flex; flex-direction: column; cursor: pointer;
+}
+.bib-cover-wrap {
+  position: relative; width: 100%; aspect-ratio: 2/3;
+  background: linear-gradient(135deg, #1a0033, #001122);
+  border: 1px solid var(--border); overflow: hidden; margin-bottom: 6px;
+  transition: box-shadow .12s;
+}
+.bib-card:hover .bib-cover-wrap { box-shadow: 0 0 12px var(--cyan); }
+.bib-cover-wrap img { width:100%; height:100%; object-fit:cover; }
+.bib-cover-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:34px; }
+.bib-ribbon {
+  position: absolute; top: 10px; right: -10px;
+  background: var(--magenta); color: #fff;
+  font-family: 'Press Start 2P', monospace; font-size: 3.5px;
+  padding: 3px 14px; transform: rotate(35deg);
+  box-shadow: 0 0 6px var(--magenta);
+}
+.bib-ribbon.fav { background: #c8a030; box-shadow: 0 0 6px #c8a030; }
+.bib-month { font-family: 'Press Start 2P', monospace; font-size: 6.5px; color: var(--magenta); margin-bottom: 3px; }
+.bib-name  { font-size: 11px; color: #ddd; margin-bottom: 2px; }
+.bib-stars { font-size: 10px; color: var(--cyan); }
+.bib-info  { font-size: 9px; color: var(--dim); margin-top: 2px; line-height: 1.6; }
+
+/* ── REVIEW OVERLAY (doble página vaporwave) ── */
+#rov {
+  display: none; position: fixed; inset: 0;
+  background: var(--bg); overflow-y: auto; padding: 20px; z-index: 999;
+}
+.rov-back-bar {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
+}
+.rov-back {
+  font-family: 'Press Start 2P', monospace; font-size: 5.5px;
+  color: var(--cyan); cursor: pointer; letter-spacing: 1px;
+  text-shadow: 0 0 6px var(--cyan);
+}
+.rov-back:hover { color: var(--magenta); }
+/* toggle light mode button */
+.rov-theme-btn {
+  font-family: 'Press Start 2P', monospace; font-size: 5px;
+  color: var(--dim); cursor: pointer; letter-spacing: 1px;
+  border: 1px solid var(--border); padding: 3px 8px;
+  background: none; transition: all .1s;
+}
+.rov-theme-btn:hover { color: var(--cyan); border-color: var(--cyan); }
+
+/* doble página con borde cyan */
+.rov-book {
+  display: grid; grid-template-columns: 1fr 1fr;
+  max-width: 1000px; margin: 0 auto;
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 30px rgba(0,255,255,.18), 0 0 60px rgba(0,255,255,.06), 4px 4px 0 rgba(255,0,255,.2);
+  min-height: 700px;
+}
+/* left half dark */
+.rov-left {
+  background: var(--bg2); padding: 22px 20px 22px 28px;
+  border-right: 2px solid var(--cyan);
+  overflow-y: auto;
+  position: relative;
+}
+.rov-left::before {
+  content:''; position:absolute; inset:0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(0,255,255,.025) 27px, rgba(0,255,255,.025) 28px);
+  pointer-events:none;
+}
+/* right half slightly different bg */
+.rov-right {
+  background: var(--bg3); padding: 22px 20px;
+  overflow-y: auto;
+  position: relative;
+}
+.rov-right::before {
+  content:''; position:absolute; inset:0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(255,0,255,.015) 27px, rgba(255,0,255,.015) 28px);
+  pointer-events:none;
+}
+/* boxes inside review overlay */
+.rov-box { background: #09091a; border: 1px solid var(--border); margin-bottom: 12px; overflow: hidden; position: relative; z-index:1; }
+.rov-box-header {
+  background: linear-gradient(90deg, #ff00ff15, transparent);
+  border-bottom: 1px solid var(--border);
+  padding: 5px 10px;
+  font-family: 'Press Start 2P', monospace; font-size: 5px;
+  color: var(--magenta); letter-spacing: 1px;
+}
+.rov-box-header.cyan { color: var(--cyan); text-shadow: 0 0 6px var(--cyan); background: linear-gradient(90deg, transparent, #00ffff08); text-align: center; }
+.rov-box-body { padding: 10px 12px; }
+.rov-detail-grid { display: grid; grid-template-columns: 56px 1fr; gap: 10px; }
+.rov-cover {
+  width: 56px; height: 80px;
+  background: linear-gradient(135deg, #1a0033, #001122);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; font-size: 24px; overflow: hidden;
+}
+.rov-cover img { width:100%; height:100%; object-fit:cover; }
+.rov-field { margin-bottom: 6px; }
+.rov-field-lbl { font-family: 'Press Start 2P', monospace; font-size: 4px; color: var(--dim); margin-bottom: 2px; }
+.rov-field-val { font-size: 11px; color: #ddd; }
+/* rating grid */
+.rov-rating-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 10px; }
+.rov-r-item {}
+.rov-r-label { font-family: 'Press Start 2P', monospace; font-size: 4px; color: var(--dim); margin-bottom: 4px; }
+.rov-r-dots { display: flex; gap: 2px; }
+.rov-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 1px solid rgba(255,0,255,.5); background: transparent;
+  display: flex; align-items: center; justify-content: center;
+}
+.rov-dot.filled { background: rgba(255,0,255,.4); }
+.rov-wouldread {
+  border-top: 1px solid var(--border); padding: 6px 10px;
+  font-family: 'Press Start 2P', monospace; font-size: 7px;
+  color: var(--dim); display: flex; gap: 10px; align-items: center;
+}
+.rov-radio { display: flex; align-items: center; gap: 4px; font-size: 9px; }
+.rov-rdot {
+  width: 9px; height: 9px; border-radius: 50%;
+  border: 1px solid #333; display: inline-flex; align-items: center; justify-content: center;
+}
+.rov-rdot.checked { border-color: var(--magenta); }
+.rov-rdot.checked::after { content:''; width:4px; height:4px; border-radius:50%; background:var(--magenta); display:block; }
+.rov-summary {
+  padding: 10px 12px; font-size: 11px; line-height: 1.85; color: #aaa; font-style: italic;
+  background: repeating-linear-gradient(transparent, transparent 22px, #0d0d1a 22px, #0d0d1a 23px);
+  min-height: 80px; position: relative; z-index:1;
+}
+.rov-quote {
+  padding: 14px 14px; font-size: 14px; font-style: italic; line-height: 1.75; color: #ddd;
+  position: relative; z-index:1;
+}
+.rov-quote-attr { text-align: right; font-size: 10px; color: var(--dim); margin-top: 8px; }
+.rov-thoughts {
+  padding: 12px; font-size: 11.5px; line-height: 1.85; color: #bbb;
+  background: repeating-linear-gradient(transparent, transparent 22px, #0a0a18 22px, #0a0a18 23px);
+  min-height: 200px; position: relative; z-index:1;
+}
+/* format row */
+.rov-fmt { display: flex; gap: 10px; flex-wrap: wrap; }
+.rov-fmt-opt { font-size: 9px; color: var(--dim); display: flex; align-items: center; gap: 3px; }
+.rov-check { color: var(--magenta); }
+
+/* En laptop: columnas en vertical */
+@media (max-width: 1100px) {
+  .rov-book {
+    grid-template-columns: 1fr !important;
+    min-height: unset;
+  }
+  .rov-left {
+    border-right: none;
+    border-bottom: 2px solid var(--cyan);
+  }
+}
+
+/* ── LIGHT MODE (overlay only) ── */
+body.light-review #rov { background: #f0ede7; }
+body.light-review .rov-book {
+  border-color: #bbb; box-shadow: 4px 4px 20px rgba(0,0,0,.2);
+}
+body.light-review .rov-left { background: #faf8f4; border-right-color: #bbb; }
+body.light-review .rov-left::before {
+  background: repeating-linear-gradient(transparent, transparent 27px, #ddd 27px, #ddd 28px);
+}
+body.light-review .rov-right { background: #f7f4ee; }
+body.light-review .rov-right::before {
+  background: repeating-linear-gradient(transparent, transparent 27px, #e8e4dc 27px, #e8e4dc 28px);
+}
+body.light-review .rov-box { background: #fff; border-color: #ccc; }
+body.light-review .rov-box-header { background: #f0ede7; color: #555; border-color: #ccc; }
+body.light-review .rov-box-header.cyan { background: #f0ede7; color: #334; }
+body.light-review .rov-field-lbl { color: #999; }
+body.light-review .rov-field-val { color: #222; }
+body.light-review .rov-r-label { color: #999; }
+body.light-review .rov-dot { border-color: rgba(180,100,120,.5); }
+body.light-review .rov-dot.filled { background: rgba(180,100,120,.4); }
+body.light-review .rov-rdot.checked { border-color: #b87080; }
+body.light-review .rov-rdot.checked::after { background: #b87080; }
+body.light-review .rov-summary { color: #444; background: repeating-linear-gradient(transparent, transparent 22px, #e8e4dc 22px, #e8e4dc 23px); }
+body.light-review .rov-quote { color: #222; }
+body.light-review .rov-quote-attr { color: #888; }
+body.light-review .rov-thoughts { color: #333; background: repeating-linear-gradient(transparent, transparent 22px, #e8e4dc 22px, #e8e4dc 23px); }
+body.light-review .rov-back, body.light-review .rov-theme-btn { color: #666; border-color: #ccc; text-shadow: none; }
+body.light-review .rov-wouldread { color: #888; }
+
+/* ── CYAN DIVIDER línea del layout ── */
+.left-tabs { border-right: 2px solid var(--cyan) !important; }
+
+/* ── PANEL HEADER cyan underline ── */
+.panel-header {
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+/* ── TABS HEADER cyan underline ── */
+.tabs-header {
+  border-bottom: 2px solid var(--cyan) !important;
+}
+
+/* ── MONITOR: larger text ── */
+@media (min-width: 1440px) {
+  .track-title      { font-size: 16px; }
+  .track-meta       { font-size: 13px; }
+  .review-title     { font-size: 13px; }
+  .review-author    { font-size: 13px; }
+  .review-opinion   { font-size: 14px; }
+  .writing-title    { font-size: 13px; }
+  .writing-type { font-size: 6.5px; }
+  .writing-body     { font-size: 15px; }
+  .micro-text       { font-size: 14px; }
+  .song-title       { font-size: 16px; }
+  .song-translation { font-size: 13px; }
+  .tab-label        { font-size: 7px; }
+  .panel-title      { font-size: 11px; }
+  .panel-sub        { font-size: 7px; }
+  .sec-label        { font-size: 7.5px; }
+  .track-intro      { font-size: 13px; }
+}
+
+
+/* capítulo más grande */
+.tc-hook-inline div:last-child,
+.tc-hook-col div:last-child {
+  font-size: 7px !important;   /* capítulo inline */
+  color: #666 !important;
+}
+
+/* también el chapter cuando está solo en la col monitor */
+.tc-hook-col [style*="Press Start 2P"] {
+  font-size: 7px !important;
+  color: #666 !important;
+}
+
+#reviews-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 768px) {
+  #reviews-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.track-table-header span:nth-child(4),
+.track-table-header span:nth-child(6),
+.track-table-header span:nth-child(7) {
+  text-align: center;
+}
+
+.tc-genres {
+  justify-content: center;
+}
+
+.tc-link-cell {
+  text-align: center;
+}
+
+.tc-state {
+  display: inline-block;
+  text-align: center;
+}
+
+/* ── CURSORES CSS nativos ── */
+* { cursor: crosshair; }
+
+a, button, [onclick], .tab-item, .r-tab, .bib-card,
+.review-card, .song-item, .writing-item, .rov-back,
+.rov-theme-btn, .tc-link, label {
+  cursor: nesw-resize;
+}
+
+.rov-radio-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 4px;
+}
+
+@media (min-width: 1440px) {
+/* ── ROV Goodreads: texto más grande en monitor ── */
+  .rov-field-val    { font-size: 12px; }
+  .rov-field-lbl    { font-size: 5.7px; }
+  .rov-wouldread    { font-size: 7px; }
+  .rov-radio span   { font-size: 6px !important; }
+  .rov-rdot         { width: 12px; height: 12px; }
+  .rov-radio-label { font-size: 77px; }
+
+}
+
+
+
+    
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-title">★ COMMONPLACE BOOK</div>
+  <div class="topbar-links">
+    <a href="index.html" class="topbar-link">HOME</a>
+    <a href="blog.shtml" class="topbar-link">BLOG</a>
+    <a href="thoughts.html" class="topbar-link">THOUGHTS ↗</a>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- ── LEFT TABS ── -->
+  <nav class="left-tabs">
+    <div class="tabs-header">
+      <div class="tabs-header-title">STARMOON</div>
+      <div class="tabs-header-sub">commonplace.exe</div>
+    </div>
+
+    <div class="tab-section">▸ MAIN</div>
+    <div class="tab-item active" onclick="switchTab('tracklist', this)" id="ltab-tracklist">
+      <span class="tab-icon">📊</span>
+      <span class="tab-label">TRACKLIST<br>what I consume</span>
+    </div>
+    <div class="tab-item" onclick="switchTab('reviews', this)" id="ltab-reviews">
+      <span class="tab-icon">📝</span>
+      <span class="tab-label">RECENT BOOKS<br>reviews</span>
+    </div>
+
+    <div class="tab-item" onclick="switchTab('biblioteca', this)" id="ltab-biblioteca">
+  <span class="tab-icon">📚</span>
+  <span class="tab-label">BIBLIOTECA<br>todo lo leído</span>
+</div>
+
+    <div class="tab-item" onclick="switchTab('writings', this)" id="ltab-writings">
+      <span class="tab-icon">✍️</span>
+      <span class="tab-label">WRITINGS<br>thoughts & reflections</span>
+    </div>
+
+    <div class="tab-section">▸ LOGS</div>
+    <div class="tab-item" onclick="switchTab('microblogs', this)" id="ltab-microblogs">
+      <span class="tab-icon">💭</span>
+      <span class="tab-label">MICROBLOGS<br>short thoughts</span>
+    </div>
+
+<div class="tab-item" onclick="switchTab('shortthoughts', this)" id="ltab-shortthoughts">
+  <span class="tab-icon">🌟</span>
+  <span class="tab-label">SHORT THOUGHTS<br>status.cafe</span>
+</div>
+
+    <div class="tab-item" onclick="switchTab('songs', this)" id="ltab-songs">
+      <span class="tab-icon">🎵</span>
+      <span class="tab-label">SONGS ♪<br>fav translations</span>
+    </div>
+
+    <div class="tab-section">▸ STUDY</div>
+    <div class="tab-item" onclick="switchTab('japanese', this)" id="ltab-japanese">
+      <span class="tab-icon">🗾</span>
+      <span class="tab-label">日本語<br>jp progress + resources</span>
+    </div>
+
+<div class="tab-item" onclick="switchTab('studylog', this)" id="ltab-studylog">
+  <span class="tab-icon">📓</span>
+  <span class="tab-label">STUDY LOG<br>progress tracker</span>
+</div>    
+
+  </nav>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="main">
+
+    <!-- TRACKLIST -->
+    <div class="content-panel active" id="panel-tracklist">
+      <div class="panel-header">
+        <div class="panel-title">📊 TRACKLIST</div>
+        <div class="panel-sub">currently consuming // updated via json</div>
+      </div>
+      <div class="panel-body">
+        <div class="sec-label">▸ IN PROGRESS</div>
+        <p class="track-intro" style="margin-top:10px;">Everything I'm consuming right now. Edit <code style="font-size:9px; color:var(--magenta); background:#0a0a1a; padding:1px 4px;">tracklist.json</code> to update automatically.</p>
+        <div id="tracklist-items"> 
+          <!-- demo items as fallback -->
+          <div class="track-item">
+            <div class="track-emoji">📖</div>
+            <div>
+              <div class="track-title">Loading tracklist.json...</div>
+              <div class="track-meta">Add a tracklist.json file to your site</div>
+              <span class="track-status s-reading">READING</span>
+            </div>
+            <div class="progress-wrap">
+              <div class="prog-bar"><div class="prog-fill" style="width:0%"></div></div>
+              <div class="prog-label">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="content-panel" id="panel-reviews">
+      <div class="panel-header">
+        <div class="panel-title">📝 REVIEWS</div>
+        <div class="panel-sub">books · comics · manga · webtoons · manhwas</div>
+      </div>
+<div class="panel-body">
+  <div class="sec-label">▸ REVIEWS & OPINIONS</div>
+  <div id="reviews-list">
+    <!-- se llena desde JS con los datos de REVIEWS -->
+  
+</div>
+
+      </div>
+    </div>
+
+    <!-- BIBLIOTECA -->
+<div class="content-panel" id="panel-biblioteca">
+  <div class="panel-header">
+    <div class="panel-title">📚 BIBLIOTECA</div>
+    <div class="panel-sub">todo lo que he leído · click para ver reseña</div>
+  </div>
+  <div class="panel-body">
+    <div class="sec-label">▸ LIBROS LEÍDOS</div>
+    <div class="biblioteca-grid" id="biblioteca-grid"></div>
+  </div>
+</div>
+
+<!-- DESPUÉS: agrega id="writings-list" al contenedor -->
+<div class="content-panel" id="panel-writings">
+  <div class="panel-header">
+    <div class="panel-title">✍️ WRITINGS</div>
+    <div class="panel-sub">poems · thoughts · stories</div>
+  </div>
+  <div class="panel-body">
+    <div class="sec-label">▸ RECENT THOUGHTS & WRITINGS</div>
+    <div id="writings-list">
+      <div class="writing-item">
+        <div class="writing-type">LOADING...</div>
+        <div class="writing-title">Add writings.json to your site</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <!-- MICROBLOGS -->
+    <div class="content-panel" id="panel-microblogs">
+      <div class="panel-header">
+        <div class="panel-title">💭 MICROBLOGS</div>
+        <div class="panel-sub">short microblogS // from microblogs.json</div>
+      </div>
+      <div class="panel-body">
+        <div class="sec-label">▸ SHORT STATUS</div>
+        <div id="micro-list">
+          <div class="micro-entry">
+            <div class="micro-date">loading...</div>
+            <div class="micro-text">Microblogs from your microblogs.json will appear here.</div>
+          </div>
+        </div>
+        <div style="margin-top:20px; padding-top:14px; border-top:1px solid var(--border);">
+          <a href="thoughts.html" style="font-family:'Press Start 2P',monospace; font-size:6px; color:var(--cyan); text-decoration:none; letter-spacing:1px; text-shadow:0 0 6px var(--cyan);">▸ READ ALL SHORT THOUGHTS →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-panel" id="panel-shortthoughts">
+  <div class="panel-header">
+    <div class="panel-title">🌟 SHORT THOUGHTS</div>
+    <div class="panel-sub">from status.cafe · @gvpv12</div>
+  </div>
+  <div class="panel-body">
+    <div class="sec-label">▸ RECENT STATUSES</div>
+    <div id="shortthoughts-list">
+      <div class="micro-entry">
+        <div class="micro-date">loading...</div>
+        <div class="micro-text">Loading from status.cafe...</div>
+      </div>
+    </div>
+    <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--border);">
+      <a href="thoughts.html" target="_blank" style="font-family:'Press Start 2P',monospace;font-size:6px;color:var(--cyan);text-decoration:none;letter-spacing:1px;text-shadow:0 0 6px var(--cyan);">▸ VIEW ALL →</a>
+    </div>
+  </div>
+</div>
+
+<div class="content-panel" id="panel-songs">
+  <div class="panel-header">
+    <div class="panel-title">🎵 SONGS ♪</div>
+    <div class="panel-sub">favorite songs with translations</div>
+  </div>
+  <div class="panel-body">
+    <div class="sec-label">▸ FAVORITES (translated)</div>
+    <div id="songs-list"></div>
+  </div>
+</div>
+
+<!-- JAPANESE -->
+<div class="content-panel" id="panel-japanese">
+      <div class="panel-header">
+        <div class="panel-title">🗾 日本語</div>
+        <div class="panel-sub">japanese progress + resources</div>
+      </div>
+      <div class="panel-body">
+        <div class="sec-label">▸ PROGRESS</div>
+
+        <div class="jp-card">
+          <div class="jp-level">★ LV. BEGINNER — N5/N4</div>
+          <div class="jp-row"><div class="jp-label">Hiragana</div><div class="jp-bar"><div class="jp-fill" style="width:80%"></div></div><div class="jp-val">80%</div></div>
+          <div class="jp-row"><div class="jp-label">Katakana</div><div class="jp-bar"><div class="jp-fill" style="width:70%"></div></div><div class="jp-val">70%</div></div>
+          <div class="jp-row"><div class="jp-label">Kanji</div><div class="jp-bar"><div class="jp-fill" style="width:15%"></div></div><div class="jp-val">15%</div></div>
+          <div class="jp-row"><div class="jp-label">Vocabulary</div><div class="jp-bar"><div class="jp-fill" style="width:25%"></div></div><div class="jp-val">25%</div></div>
+          <div class="jp-row"><div class="jp-label">Grammar</div><div class="jp-bar"><div class="jp-fill" style="width:20%"></div></div><div class="jp-val">20%</div></div>
+        </div>
+
+        <div class="jp-resources">
+          <div class="jp-res-title">▸ RESOURCES</div>
+          <a class="res-link" href="https://www.wanikani.com" target="_blank">WaniKani — Kanji & vocab SRS</a>
+          <a class="res-link" href="https://www.bunpro.jp" target="_blank">Bunpro — Grammar SRS</a>
+          <a class="res-link" href="https://jisho.org" target="_blank">Jisho.org — Dictionary</a>
+          <a class="res-link" href="https://www.nhk.or.jp/school/syougaku/nihongo/" target="_blank">NHK Japanese Lessons</a>
+          <a class="res-link" href="#">Add your own resources here</a>
+        </div>
+
+        <div style="margin-top:30px;">
+  <div class="sec-label">▸ STUDY LOG — 日本語</div>
+  <div id="studylog-jp-list">
+    <div class="micro-entry">
+      <div class="micro-date">loading...</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </div>
+
+
+
+    <div class="content-panel" id="panel-studylog">
+  <div class="panel-header">
+    <div class="panel-title">📓 STUDY LOG</div>
+    <div class="panel-sub">language & course progress tracker</div>
+  </div>
+  <div class="panel-body">
+    <div class="sec-label">▸ RECENT SESSIONS</div>
+    <div id="studylog-list">
+      <div class="micro-entry">
+        <div class="micro-date">loading...</div>
+        <div class="micro-text">Loading from studylog.json...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </main>
+
+  <!-- ── RIGHT TABS (index) ── -->
+  <div class="right-tabs">
+    <div class="r-tab active" onclick="switchTab('tracklist', null, this)" title="Tracklist">TRK</div>
+    <div class="r-tab" onclick="switchTab('reviews', null, this)" title="Reviews">REV</div>
+    <div class="r-tab" onclick="switchTab('biblioteca', null, this)" title="Biblioteca">BIB</div>
+    <div class="r-tab" onclick="switchTab('writings', null, this)" title="Writings">WRI</div>
+    <div class="r-tab" onclick="switchTab('microblogs', null, this)" title="Microblogs">MCR</div>
+    <div class="r-tab" onclick="switchTab('shortthoughts', null, this)" title="Short Thoughts">SHT</div>
+    <div class="r-tab" onclick="switchTab('songs', null, this)" title="Songs">SNG</div>
+    <div class="r-tab" onclick="switchTab('japanese', null, this)" title="Japanese">日本</div>
+    <div class="r-tab" onclick="switchTab('studylog', null, this)" title="Study Log">LOG</div>
+  </div>
+
+</div>
+
+<!-- REVIEW OVERLAY -->
+<div id="rov">
+  <div style="max-width:1040px; margin:0 auto;">
+    <div class="rov-back-bar">
+      <span class="rov-back" onclick="closeROV()">◄ BACK</span>
+      <button class="rov-theme-btn" onclick="toggleTheme()">☀ LIGHT MODE</button>
+    </div>
+    <div class="rov-book" id="rov-content"></div>
+  </div>
+</div>
+
+<script>
+let activeTab = 'tracklist';
+
+function switchTab(name, ltabEl, rtabEl) {
+  sfxClick();
+  activeTab = name;
+  document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById('panel-' + name);
+  if (panel) panel.classList.add('active');
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  const lt = document.getElementById('ltab-' + name);
+  if (lt) lt.classList.add('active');
+  else if (ltabEl) ltabEl.classList.add('active');
+  document.querySelectorAll('.r-tab').forEach(t => t.classList.remove('active'));
+  if (rtabEl) rtabEl.classList.add('active');
+}
+
+
+
+// ── BIBLIOTECA desde JSON ──
+function renderBiblioteca() {
+  fetch('biblioteca.json')
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(items => {
+      window._bibData = items; // guardar para las reseñas
+      renderBibliotecaGrid(items);
+    })
+    .catch(() => {
+      // fallback visual si no existe el JSON
+      document.getElementById('biblioteca-grid').innerHTML = `
+        <div style="color:var(--dim);font-size:10px;font-family:'Courier New',monospace;grid-column:1/-1;padding:20px 0;">
+          Crea <span style="color:var(--magenta)">biblioteca.json</span> y súbelo a tu sitio para ver tus libros aquí.
+        </div>`;
+    });
+}
+
+function renderBibliotecaGrid(items) {
+  const grid = document.getElementById('biblioteca-grid');
+  if (!grid) return;
+
+  grid.innerHTML = items.map((b, i) => {
+    const rib = b.ribbon
+      ? `<div class="bib-ribbon ${b.ribbon === 'favorite' ? 'fav' : ''}">${b.ribbon}</div>`
+      : '';
+
+    const coverContent = b.cover
+      ? `<img src="${b.cover}" alt="${b.title}" style="width:100%;height:100%;object-fit:cover;">`
+      : `<div class="bib-cover-placeholder">${b.emoji || '📚'}</div>`;
+
+    const stars = b.rating
+      ? '★'.repeat(b.rating) + '☆'.repeat(5 - b.rating)
+      : '';
+
+    // solo clickeable si tiene contenido de reseña
+    const hasReview = b.summary || b.thoughts || b.quote;
+
+const slug = (b.slug || b.title.toLowerCase()
+  .replace(/[^a-z0-9\s-]/g, '')
+  .trim().replace(/\s+/g, '-'));
+
+return `
+  <div class="bib-card" ${hasReview ? `onclick="openBibReview(${i}, '${slug}')"` : ''}">
+        <div class="bib-cover-wrap">
+          ${coverContent}${rib}
+        </div>
+        <div class="bib-month">${b.month || ''}</div>
+        ${b.title ? `<div class="bib-name">${b.title}</div>` : ''}
+        ${stars    ? `<div class="bib-stars">${stars}</div>` : ''}
+        ${b.genre  ? `<div class="bib-info">Genre: ${b.genre}<br>Released: ${b.year || ''}<br>Pages: ${b.pages || ''}<br>Format: ${b.format || ''}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function openBibReview(i, slug) {
+  const items = window._bibData || [];
+  const b = items[i];
+  if (!b) return;
+
+  // actualizar URL sin recargar
+  if (slug) {
+    history.pushState({ bibIdx: i, slug }, '', `/commonplace_book/${slug}`);
+    document.title = `STARMOON — ${b.title}`;
+  }
+
+  openROV({
+    type:        '📖 BOOK',
+    title:       b.title       || '—',
+    author:      b.author      || '—',
+    genre:       b.genre       || '—',
+    format:      b.format      || 'book',
+    startDate:   b.startDate   || '',
+    endDate:     b.endDate     || '',
+    stars:       b.stars       || { overall: b.rating || 0, writing:0, emotional:0, spice:0, characters:0, cover:0, plot:0, intrigue:0, ending:0 },
+    wouldRead:   b.wouldRead   || '',
+    summary:     b.summary     || '',
+    quote:       b.quote       || '',
+    quoteAuthor: b.quoteAuthor || b.author || '',
+    thoughts:    b.thoughts    || '',
+    cover:       b.cover       || '',
+    coverEmoji:  b.emoji       || '📚',
+  });
+}
+
+// ── LOAD WRITINGS ──
+fetch('writings.json')
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(data => renderWritings(data))
+  .catch(() => {});
+
+function renderWritings(items) {
+  const container = document.getElementById('writings-list');
+  if (!container) return;
+  container.innerHTML = items.map((item, i) => `
+    <div class="writing-item" style="cursor:pointer;" onclick='openWritingDetail(${JSON.stringify(item)})'>
+      <div class="writing-type">${(item.writingType || item.type || 'WRITING').toUpperCase()} // ${item.date || ''}</div>
+      <div class="writing-title">${item.title}</div>
+      ${item.linked_titles?.length
+        ? `<div style="font-size:10px;color:var(--magenta);margin-top:4px;">linked: ${item.linked_titles.join(', ')}</div>`
+        : ''}
+    </div>`).join('');
+}
+
+// ── LOAD SONGS ──
+fetch('songs.json')
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(data => renderSongs(data))
+  .catch(() => {});
+
+function renderSongs(items) {
+  const container = document.getElementById('songs-list');
+  if (!container) return;
+  container.innerHTML = items.map((item, i) => `
+    <div class="song-item" style="cursor:pointer;" onclick='openWritingDetail(${JSON.stringify(item)})'>
+      <div class="song-num">${String(i+1).padStart(2,'0')}</div>
+      <div>
+        <div class="song-title">${item.title}</div>
+        <div class="song-translation">${item.translation || ''}</div>
+        <div class="song-artist">${item.artist || ''}</div>
+      </div>
+    </div>`).join('');
+} 
+
+// ── RENDER REVIEW CARDS (panel reviews) ──
+function renderReviewCards() {
+  const container = document.getElementById('reviews-list');
+  if (!container) return;
+  // muestra placeholder mientras carga Goodreads
+  container.innerHTML = `
+    <div style="color:var(--dim);font-size:10px;font-family:'Courier New',monospace;
+                grid-column:1/-1;padding:14px 0;letter-spacing:1px;">
+      ⟳ Loading recent reads from Goodreads...
+    </div>`;
+}
+
+// ── OPEN REVIEW OVERLAY ──
+function openROV(data) {
+  sfxOpen();
+  const r = data;
+  if (!r || typeof r !== 'object') return;
+
+  function dots(n, max=5) {
+    return Array.from({length:max}, (_,i) =>
+      `<div class="rov-dot${i<n?' filled':''}"></div>`).join('');
+  }
+  function rItem(label, n) {
+    return `<div class="rov-r-item"><div class="rov-r-label">${label}</div><div class="rov-r-dots">${dots(n)}</div></div>`;
+  }
+  const fmtRow = ['book','audio','e-book'].map(f =>
+    `<span class="rov-fmt-opt">${r.format?.toLowerCase()===f?'<span class="rov-check">✓</span>':'<span style="color:#333">○</span>'} ${f.toUpperCase()}</span>`
+  ).join('');
+const wop = ['yes','no','have'].map(o =>
+    `<div class="rov-radio">
+       <div class="rov-rdot${r.wouldRead===o?' checked':''}"></div>
+       <span class="rov-radio-label">${o.toUpperCase()}</span>
+     </div>`
+  ).join('');
+
+  document.getElementById('rov-content').innerHTML = `
+    <div class="rov-left">
+      <div class="rov-box">
+        <div class="rov-box-header">BOOK DETAILS</div>
+        <div class="rov-box-body">
+          <div class="rov-detail-grid">
+            <div class="rov-cover">${r.cover?`<img src="${r.cover}">`:(r.coverEmoji||'📚')}</div>
+            <div>
+              <div class="rov-field"><div class="rov-field-lbl">TITLE</div><div class="rov-field-val" style="color:var(--cyan)">${r.title}</div></div>
+              <div class="rov-field"><div class="rov-field-lbl">AUTHOR</div><div class="rov-field-val">${r.author}</div></div>
+              <div class="rov-field"><div class="rov-field-lbl">GENRE</div><div class="rov-field-val">${r.genre||'—'}</div></div>
+              <div class="rov-field"><div class="rov-field-lbl">FORMAT</div><div class="rov-fmt">${fmtRow}</div></div>
+              ${r.startDate ? `<div class="rov-field"><div class="rov-field-lbl">DATES</div><div class="rov-field-val">${r.startDate} → ${r.endDate||'?'}</div></div>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rov-box">
+        <div class="rov-box-header" style="text-align:center;">RATING</div>
+        <div class="rov-rating-grid">
+          ${rItem('Overall',r.stars?.overall||0)}${rItem('Writing',r.stars?.writing||0)}${rItem('Emotional',r.stars?.emotional||0)}
+          ${rItem('Spice',r.stars?.spice||0)}${rItem('Characters',r.stars?.characters||0)}${rItem('Cover',r.stars?.cover||0)}
+          ${rItem('Plot',r.stars?.plot||0)}${rItem('Intrigue',r.stars?.intrigue||0)}${rItem('Ending',r.stars?.ending||0)}
+        </div>
+        <div class="rov-wouldread">WOULD READ AGAIN? ${wop}</div>
+      </div>
+      <div class="rov-box">
+        <div class="rov-box-header" style="text-align:center;">SUMMARY</div>
+        <div class="rov-summary">${r.summary||'No summary added.'}</div>
+      </div>
+    </div>
+    <div class="rov-right">
+      <div class="rov-box">
+        <div class="rov-box-header cyan">FAVORITE QUOTES</div>
+        <div class="rov-quote">${r.quote||'"No quote added."'}
+          <div class="rov-quote-attr">— ${r.quoteAuthor||r.author}</div>
+        </div>
+      </div>
+      <div class="rov-box">
+        <div class="rov-box-header cyan">THOUGHTS</div>
+        <div class="rov-thoughts">${r.thoughts||'No thoughts added.'}</div>
+      </div>
+    </div>`;
+
+  document.getElementById('rov').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeROV() {
+  document.getElementById('rov').style.display = 'none';
+  document.body.style.overflow = '';
+  document.body.classList.remove('light-review');
+  document.querySelector('.rov-theme-btn').textContent = '☀ LIGHT MODE';
+
+  // restaurar URL
+  if (window.location.pathname !== '/commonplace_book.html'
+   && window.location.pathname !== '/commonplace_vaporwave.html') {
+    history.pushState({}, '', '/commonplace_vaporwave.html');
+    document.title = 'STARMOON — Commonplace Book';
+  }
+}
+
+// ── WRITING / SONG DETAIL VIEW ──
+function openWritingDetail(data) {
+  sfxOpen();
+  const isSong = data.type === 'song';
+  const leftContent = isSong ? `
+    <div class="rov-box">
+      <div class="rov-box-header">SONG DETAILS</div>
+      <div class="rov-box-body">
+        <div class="rov-field"><div class="rov-field-lbl">TITLE</div><div class="rov-field-val" style="color:var(--cyan)">${data.title || '—'}</div></div>
+        <div class="rov-field"><div class="rov-field-lbl">ARTIST</div><div class="rov-field-val">${data.artist || '—'}</div></div>
+        <div class="rov-field"><div class="rov-field-lbl">ALBUM</div><div class="rov-field-val">${data.album || '—'}</div></div>
+        <div class="rov-field"><div class="rov-field-lbl">YEAR</div><div class="rov-field-val">${data.year || '—'}</div></div>
+        <div class="rov-field"><div class="rov-field-lbl">LANGUAGE</div><div class="rov-field-val">${data.language || '—'}</div></div>
+        <div class="rov-field"><div class="rov-field-lbl">TRANSLATION</div><div class="rov-field-val" style="font-style:italic;color:#aaa;">${data.translation || '—'}</div></div>
+        ${data.link ? `<div class="rov-field"><div class="rov-field-lbl">LISTEN</div><div class="rov-field-val"><a href="${data.link}" target="_blank" class="res-link" style="display:inline;">↗ open</a></div></div>` : ''}
+      </div>
+    </div>` : `
+    <div class="rov-box">
+      <div class="rov-box-header">POEM / WRITING DETAILS</div>
+      <div class="rov-box-body">
+        <div class="rov-field"><div class="rov-field-lbl">TITLE</div><div class="rov-field-val" style="color:var(--cyan)">${data.title || '—'}</div></div>
+        <div class="rov-field"><div class="rov-field-lbl">TYPE</div><div class="rov-field-val">${data.writingType || 'poem'}</div></div>
+        <div class="rov-field"><div class="rov-field-lbl">DATE</div><div class="rov-field-val">${data.date || '—'}</div></div>
+        ${data.linked_titles?.length ? `<div class="rov-field"><div class="rov-field-lbl">LINKED TO</div><div class="rov-field-val" style="color:var(--magenta)">${data.linked_titles.join(', ')}</div></div>` : ''}
+      </div>
+    </div>`;
+
+  const rightContent = `
+    <div class="rov-box">
+      <div class="rov-box-header cyan">${isSong ? 'LYRICS FRAGMENT / MEANING' : 'CONTENT'}</div>
+      <div class="rov-quote" style="font-size:${isSong?'13px':'14px'};">${data.body || data.content || '—'}</div>
+    </div>
+    ${data.thoughts ? `<div class="rov-box"><div class="rov-box-header cyan">THOUGHTS</div><div class="rov-thoughts">${data.thoughts}</div></div>` : ''}`;
+
+  document.getElementById('rov-content').innerHTML = `
+    <div class="rov-left">${leftContent}</div>
+    <div class="rov-right">${rightContent}</div>`;
+  document.getElementById('rov').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+let lightMode = false;
+function toggleTheme() {
+  lightMode = !lightMode;
+  document.body.classList.toggle('light-review', lightMode);
+  document.querySelector('.rov-theme-btn').textContent = lightMode ? '🌙 DARK MODE' : '☀ LIGHT MODE';
+}
+
+function renderTrackTable(items) {
+  const container = document.getElementById('tracklist-items');
+  if (!container) return;
+
+  const clsMap = {
+    reading:'tc-reading', playing:'tc-playing', watching:'tc-watching',
+    done:'tc-done', paused:'tc-paused', listening:'tc-listening'
+  };
+
+  const header = `
+    <div class="track-table-header">
+      <span></span>
+      <span>TITLE</span>
+      <span>SUBTITLE / AUTHOR</span>
+      <span>GENRES</span>
+      <span class="tc-hook-col">HOOK &amp; CHAPTER</span>
+      <span>LINK</span>
+      <span>STATE</span>
+      <span>PROGRESS</span>
+    </div>`;
+
+  const rows = items.map(item => {
+    const pct = (item.progress != null && item.progress !== undefined) ? item.progress : null;
+    const statusCls = clsMap[item.status] || 'tc-reading';
+    const genres = (item.genres || []).map(g => `<span class="tc-tag">${g}</span>`).join('');
+
+    const hookInline = (item.hook || item.chapter) ? `
+      <div class="tc-hook-inline">
+        ${item.hook    ? `<div style="font-size:10px;color:#555;font-style:italic;margin-top:3px;">♡ ${item.hook}</div>` : ''}
+        ${item.chapter ? `<div style="font-family:'Press Start 2P',monospace;font-size:4px;color:#444;margin-top:3px;">▸ ${item.chapter}</div>` : ''}
+      </div>` : '';
+
+    const hookCol = `
+      <div class="tc-hook-col">
+        ${item.hook    ? `<div style="font-size:11px;color:#666;font-style:italic;">♡ ${item.hook}</div>` : '<span class="tc-empty">—</span>'}
+        ${item.chapter ? `<div style="font-family:'Press Start 2P',monospace;font-size:5px;color:#555;margin-top:4px;">▸ ${item.chapter}</div>` : ''}
+      </div>`;
+
+    const linkHtml = item.link
+      ? `<a href="${item.link}" target="_blank" class="tc-link">🔗 link</a>`
+      : `<span class="tc-empty">—</span>`;
+
+    const stateHtml = item.state
+      ? `<span class="tc-state tc-${item.state}">${item.state.toUpperCase()}</span>`
+      : `<span class="tc-empty">—</span>`;
+
+    const progHtml = pct != null
+      ? `<div class="tc-prog">
+           <div class="tc-bar"><div class="tc-bar-fill" style="width:${pct}%"></div></div>
+           <div class="tc-pct">${pct}%</div>
+         </div>`
+      : `<div class="tc-pct" style="text-align:center;color:#555;">N/A</div>`;
+
+    return `
+      <div class="track-item">
+        <div class="tc-emoji">${item.emoji || '★'}</div>
+        <div class="tc-main">
+          <div class="tc-title">${item.title}</div>
+          <span class="tc-status ${statusCls}">${(item.status || 'IN PROGRESS').toUpperCase()}</span>
+          ${hookInline}
+        </div>
+        <div class="tc-sub">${item.subtitle || '—'}</div>
+        <div class="tc-genres">${genres || '<span class="tc-empty">—</span>'}</div>
+        ${hookCol}
+        <div class="tc-link-cell">${linkHtml}</div>
+        <div>${stateHtml}</div>
+        <div>${progHtml}</div>
+      </div>`;
+  }).join('');
+
+  container.innerHTML = header + rows;
+} 
+
+// ── MICROBLOGS ──
+// ── MICROBLOGS desde microblogs.json ──
+fetch('microblogs.json')
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(entries => {
+    document.getElementById('micro-list').innerHTML = entries.slice(0,5).map(e => {
+      const moodLabel = e.mood?.label || e.mood || '—';
+      const moodVal   = e.mood?.value ?? 0;
+      const statsHtml = (e.stats || []).map(s => `
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+          <span style="font-size:11px;">${s.icon}</span>
+          <span style="font-family:'Press Start 2P',monospace;font-size:6px;color:var(--dim);width:50px;">${s.label}</span>
+          <div style="flex:1;height:4px;background:#0a0a1e;border:1px solid #1a1a30;">
+            <div style="width:${s.value}%;height:100%;background:linear-gradient(90deg,var(--magenta),var(--cyan));"></div>
+          </div>
+          <span style="font-family:'Press Start 2P',monospace;font-size:5.5px;color:var(--cyan);width:28px;text-align:right;">${s.text}</span>
+        </div>`).join('');
+      return `
+        <div class="micro-entry">
+          <div class="micro-date">★ ${e.date}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span style="font-family:'Press Start 2P',monospace;font-size:6px;color:var(--dim);">MOOD</span>
+            <div style="flex:1;height:4px;background:#0a0a1e;border:1px solid #1a1a30;">
+              <div style="width:${moodVal}%;height:100%;background:linear-gradient(90deg,var(--magenta),var(--cyan));"></div>
+            </div>
+            <span class="micro-mood" style="margin-top:0;">${moodLabel}</span>
+          </div>
+          ${statsHtml}
+          ${e.thought ? `<div class="micro-text" style="margin-top:8px;">💭 ${e.thought}</div>` : ''}
+        </div>`;
+    }).join('');
+  })
+  .catch(() => {});
+
+// ── INIT ──
+
+renderBiblioteca();   // carga biblioteca.json
+renderReviewCards();  // muestra loading, Goodreads lo reemplaza
+
+fetch('tracklist.json')
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(data => renderTrackTable(data))
+  .catch(() => {
+    renderTrackTable([
+      { emoji:'📖', title:'Nombre del libro', subtitle:'Nombre del autor',
+        genres:['fiction','cozy'], hook:'La atmósfera es increíble',
+        chapter:'Cap. 12', progress:45, status:'reading', state:'ongoing',
+        link:'https://ejemplo.com' }
+    ]);
+  });
+
+
+
+// ── GOODREADS RECENT REVIEWS ──
+const GR_RSS = 'https://www.goodreads.com/review/list_rss/28477539?shelf=read&sort=date_read&per_page=20';
+const RSS2JSON = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(GR_RSS)}`;
+
+fetch(RSS2JSON)
+  .then(r => r.json())
+  .then(data => {
+    if (data.status !== 'ok') throw new Error('bad response');
+
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    // filtrar últimos 6 meses
+    const recent = data.items.filter(item => {
+      const pub = new Date(item.pubDate);
+      return pub >= sixMonthsAgo;
+    });
+
+    renderGoodreadsReviews(recent);
+     
+  })
+  .catch(err => console.warn('Goodreads RSS failed:', err));
+
+function renderGoodreadsReviews(items) {
+  const container = document.getElementById('reviews-list');
+  if (!container) return;
+
+  // parsear el HTML del item para sacar portada y rating
+  container.innerHTML = items.map((item, i) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(item.description, 'text/html');
+    const img = doc.querySelector('img')?.src || '';
+const descText = new DOMParser().parseFromString(item.description, 'text/html').body?.textContent || '';
+const afterPubIdx2 = descText.toLowerCase().indexOf('book published:');
+const textAfterPub2 = afterPubIdx2 >= 0 ? descText.slice(afterPubIdx2) : descText;
+const ratingMatch2 = textAfterPub2.match(/\brating:\s*([1-5])\b/i);
+const rating = ratingMatch2 ? parseInt(ratingMatch2[1]) : 0;
+    const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+    const review = doc.querySelector('span[id*="freeText"]')?.textContent?.trim() || '';
+
+    return `
+      <div class="review-card" style="cursor:pointer;" onclick="openGoodreadsReview(${i})">
+        <div class="review-header">
+          <span>BOOK</span>
+          <span style="color:var(--cyan)">${stars}</span>
+        </div>
+        <div class="review-body">
+          <div class="review-cover">${img ? `<img src="${img}" style="width:100%;height:100%;object-fit:cover;">` : '📚'}</div>
+          <div>
+            <div class="review-title">${item.title}</div>
+            <div class="review-author" style="font-size:10px;color:var(--dim);">${item.author_name || ''}</div>
+            <div class="stars">${stars}</div>
+            ${review ? `<div class="review-opinion">${review.slice(0, 80)}...</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // guardar para el detalle
+  window._grItems = items;
+}
+
+function openGoodreadsReview(i) {
+  sfxOpen();
+  const item = window._grItems[i];
+  if (!item) return;
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(item.description, 'text/html');
+  const rawText = (doc.body?.innerText || doc.body?.textContent || '').trim();
+
+  function extractField(text, fieldName) {
+    const knownFields = 'author|name|average rating|book published|rating|read at|date added|shelves|review|isbn|num pages|publisher|asin|original title|ratings count|reviews count';
+    const rx = new RegExp(fieldName + ':\\s*([\\s\\S]*?)(?=\\s*(?:' + knownFields + '):|$)', 'i');
+    const m = text.match(rx);
+    return m ? m[1].trim() : '';
+  }
+
+  // rating del USUARIO — buscar "rating: N" (solo dígito simple)
+  // El RSS pone: "average rating: 3.93 book published: 2012 rating: 3"
+  // hay que extraer el rating del usuario que es DESPUÉS de "book published"
+// El RSS pone: "average rating: X.XX book published: YYYY rating: N"
+// Necesitamos el "rating: N" que viene DESPUÉS de "book published"
+// Usamos split para ser más precisos
+const afterPubIdx = rawText.toLowerCase().indexOf('book published:');
+const textAfterPub = afterPubIdx >= 0 ? rawText.slice(afterPubIdx) : rawText;
+// ahora buscar "rating: N" donde N es un solo dígito (no decimal)
+const userRatingMatch = textAfterPub.match(/\brating:\s*([1-5])\b/i);
+const rating = userRatingMatch ? parseInt(userRatingMatch[1]) : 0;
+
+  const author       = extractField(rawText, 'author');
+  const avgRating    = extractField(rawText, 'average rating');
+  const pubYear      = extractField(rawText, 'book published');
+  const dateRead     = extractField(rawText, 'read at');
+  const dateAdded    = extractField(rawText, 'date added');
+  const shelves      = extractField(rawText, 'shelves');
+  const numPages     = extractField(rawText, 'num pages');
+  const isbn         = extractField(rawText, 'isbn');
+  const asin         = extractField(rawText, 'asin');
+  const originalTitle= extractField(rawText, 'original title');
+  const ratingsCount = extractField(rawText, 'ratings count');
+  const reviewsCount = extractField(rawText, 'reviews count');
+
+  const reviewMatch = rawText.match(/review:\s*([\s\S]*?)$/i);
+  const review = reviewMatch ? reviewMatch[1].trim() : '';
+
+  const img = doc.querySelector('img')?.src || '';
+
+  // formato desde shelves
+  let format = 'book';
+  const sl = shelves.toLowerCase();
+  if (sl.includes('manga'))   format = 'manga';
+  else if (sl.includes('webtoon')) format = 'webtoon';
+  else if (sl.includes('comic'))   format = 'comic';
+
+  const tags = shelves.split(',').map(t => t.trim()).filter(Boolean);
+
+  // Quotes: Goodreads RSS no las incluye — se dejan vacías y el carrusel muestra mensaje
+  // Para obtenerlas habría que scraping adicional que bloquea CORS
+  const quotes = [];
+
+  openROVGoodreads({
+    title:         item.title || '—',
+    author,
+    format,
+    shelves,
+    tags,
+    rating,        // ← rating del usuario
+    avgRating,
+    pubYear,
+    dateRead,
+    dateAdded,
+    numPages,
+    isbn,
+    asin,
+    originalTitle,
+    ratingsCount,
+    reviewsCount,
+    review,
+    summary:       null, // se busca después
+    quotes,        // vacío → carrusel muestra mensaje con link
+    img,
+    wouldRead: rating >= 4 ? 'yes' : (rating <= 2 ? 'no' : 'have'),
+  });
+}
+
+
+function openROVGoodreads(r) {
+  const stars = r.rating
+    ? '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating)
+    : '☆☆☆☆☆';
+
+  const starsLarge = `<span style="font-size:18px;letter-spacing:3px;color:var(--cyan);text-shadow:0 0 8px var(--cyan);">${stars}</span>`;
+
+  const tagsHtml = r.tags.length
+    ? r.tags.map(t => `
+        <span style="font-family:'Press Start 2P',monospace;font-size:4.5px;
+          padding:3px 8px;border:1px solid var(--cyan);color:var(--cyan);
+          margin:3px 2px;display:inline-block;">#${t}</span>`
+      ).join('')
+    : '<span style="color:var(--dim);font-size:10px;font-family:\'Courier New\',monospace;">No tags.</span>';
+
+  const wop = ['yes','no','have'].map(o =>
+    `<div class="rov-radio">
+       <div class="rov-rdot${r.wouldRead===o?' checked':''}"></div>
+       <span style="font-family:'Press Start 2P',monospace;font-size:4px;">${o.toUpperCase()}</span>
+     </div>`
+  ).join('');
+
+  document.getElementById('rov-content').innerHTML = `
+    <div class="rov-left">
+
+      <div class="rov-box">
+        <div class="rov-box-header">BOOK DETAILS</div>
+        <div class="rov-box-body">
+          <div class="rov-detail-grid">
+            <div class="rov-cover">${r.img
+              ? `<img src="${r.img}" style="width:100%;height:100%;object-fit:cover;">`
+              : '📚'}</div>
+            <div>
+              <div class="rov-field">
+                <div class="rov-field-lbl">TITLE</div>
+                <div class="rov-field-val" style="color:var(--cyan)">${r.title}</div>
+              </div>
+              <div class="rov-field">
+                <div class="rov-field-lbl">AUTHOR</div>
+                <div class="rov-field-val">${r.author || '—'}</div>
+              </div>
+              <div class="rov-field">
+                <div class="rov-field-lbl">SHELVES</div>
+                <div class="rov-field-val" style="font-size:10px;">${r.shelves || '—'}</div>
+              </div>
+              <div class="rov-field" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                <div>
+                  <div class="rov-field-lbl">FORMAT</div>
+                  <div class="rov-field-val">${r.format.toUpperCase()}</div>
+                </div>
+                <div>
+                  <div class="rov-field-lbl">MY RATING</div>
+                  <div>${starsLarge}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rov-box">
+        <div class="rov-box-header" style="text-align:center;">META</div>
+        <div style="padding:10px 12px;font-family:'Press Start 2P',monospace;font-size:5px;color:var(--dim);line-height:2.4;">
+          ${r.pubYear    ? `PUBLISHED: <span style="color:#aaa;font-size:9px;font-family:'Courier New',monospace;">${r.pubYear}</span><br>` : ''}
+          ${r.numPages   ? `PAGES: <span style="color:#aaa;font-size:9px;font-family:'Courier New',monospace;">${r.numPages}</span><br>` : ''}
+          ${r.dateAdded  ? `DATE ADDED: <span style="color:#aaa;font-size:9px;font-family:'Courier New',monospace;">${r.dateAdded}</span><br>` : ''}
+          ${r.dateRead   ? `DATE READ: <span style="color:#aaa;font-size:9px;font-family:'Courier New',monospace;">${r.dateRead}</span><br>` : ''}
+          ${r.avgRating  ? `AVG GOODREADS: <span style="color:var(--cyan);font-size:9px;font-family:'Courier New',monospace;">${r.avgRating} ★</span>` : ''}
+        </div>
+        <div style="border-top:1px solid var(--border);padding:6px 10px;font-family:'Press Start 2P',monospace;font-size:4px;color:var(--dim);display:flex;gap:10px;align-items:center;">
+          WOULD READ AGAIN? ${wop}
+        </div>
+      </div>
+
+      <div class="rov-box">
+        <div class="rov-box-header" style="text-align:center;">SUMMARY</div>
+        <div class="rov-summary" id="rov-summary-text" style="font-style:normal;">Buscando sinopsis...</div>
+      </div>
+
+    </div>
+
+    <div class="rov-right">
+      <div class="rov-box">
+        <div class="rov-box-header cyan">MY REVIEW</div>
+        <div class="rov-thoughts">${r.review || 'No review written yet.'}</div>
+      </div>
+    </div>`;
+
+  document.getElementById('rov').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  // buscar synopsis después de renderizar
+  fetchSynopsis(r.title, r.author);
+}
+
+// ── URL ROUTING: abrir reseña desde URL directa ──
+(function checkURL() {
+  const path = window.location.pathname;
+  const match = path.match(/\/commonplace_book\/([^/]+)/);
+  if (!match) return;
+  const slug = match[1];
+
+  // esperar a que biblioteca.json cargue
+  function tryOpen(attempts) {
+    const items = window._bibData;
+    if (!items) {
+      if (attempts < 20) setTimeout(() => tryOpen(attempts + 1), 300);
+      return;
+    }
+    const idx = items.findIndex(b => {
+      const s = b.slug || b.title.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+      return s === slug;
+    });
+    if (idx >= 0) {
+      // ir a la pestaña biblioteca y abrir
+      switchTab('biblioteca', null, null);
+      setTimeout(() => openBibReview(idx, slug), 100);
+    }
+  }
+  tryOpen(0);
+})();
+
+// ── BACK del navegador ──
+window.addEventListener('popstate', (e) => {
+  if (!e.state || !e.state.bibIdx) {
+    closeROV();
+  }
+});
+
+function fetchSynopsis(title, author) {
+  const summaryEl = document.getElementById('rov-summary-text');
+  if (!summaryEl) return;
+  summaryEl.innerHTML = '<span style="color:var(--dim);font-size:10px;">Searching synopsis...</span>';
+
+  const query = encodeURIComponent(`${title} ${author}`.trim());
+  fetch(`https://openlibrary.org/search.json?q=${query}&limit=1&fields=key,title,first_sentence`)
+    .then(r => r.json())
+    .then(data => {
+      const doc = data.docs?.[0];
+      const sentence = doc?.first_sentence?.value || doc?.first_sentence;
+      if (sentence) {
+        summaryEl.textContent = sentence;
+        return;
+      }
+      // fallback: buscar en el registro del libro
+      if (doc?.key) {
+        return fetch(`https://openlibrary.org${doc.key}.json`)
+          .then(r => r.json())
+          .then(book => {
+            const desc = book.description?.value || book.description;
+            summaryEl.textContent = desc
+              ? (desc.length > 400 ? desc.slice(0, 400) + '…' : desc)
+              : 'No synopsis available.';
+          });
+      }
+      summaryEl.textContent = 'No synopsis available.';
+    })
+    .catch(() => {
+      summaryEl.textContent = 'No synopsis available.';
+    });
+}
+
+// ── SHORT THOUGHTS desde status.cafe ──
+// ── SHORT THOUGHTS desde statusfeed.json ──
+fetch('statusfeed.json')
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(entries => {
+    const container = document.getElementById('shortthoughts-list');
+    if (!container || !entries.length) return;
+    container.innerHTML = entries.slice(0, 10).map(e => `
+      <div class="micro-entry" style="position:relative;">
+        <span style="position:absolute;top:10px;right:12px;font-size:18px;">${e.mood || '★'}</span>
+        <div class="micro-date">★ ${e.date || ''}</div>
+        <div class="micro-text" style="padding-right:30px;">${e.text || ''}</div>
+      </div>`).join('');
+  })
+  .catch(() => {});
+
+  // ── STUDY LOG ──
+fetch('studylog.json')
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(entries => {
+    window._studyData = entries;
+    renderStudyLog(entries);
+    renderStudyLogFiltered(entries, '日本語'); // filtra para el panel JP
+  })
+  .catch(() => {});
+
+function renderStudyLog(entries) {
+  const container = document.getElementById('studylog-list');
+  if (!container) return;
+
+  container.innerHTML = entries.map((e, i) => {
+    const imgCount = (e.images || []).length;
+    const srcIcon = { read:'📖', listen:'🎧', video:'🎬' }[e.sourceType] || '📌';
+
+    // mini galería preview (máx 4)
+    const galleryPreview = imgCount > 0
+      ? `<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;">
+          ${e.images.slice(0,4).map(src =>
+            `<img src="${src}" style="width:52px;height:52px;object-fit:cover;border:1px solid var(--border);"
+                  onerror="this.style.display='none'">`
+          ).join('')}
+          ${imgCount > 4 ? `<div style="width:52px;height:52px;background:#0a0a1e;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:6px;color:var(--dim);">+${imgCount-4}</div>` : ''}
+        </div>` : '';
+
+    return `
+      <div class="micro-entry" style="cursor:pointer;" onclick="openStudyDetail(${i})">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div class="micro-date">★ ${e.date || 'N/A'}</div>
+          <span style="font-size:16px;">${e.emoji || '📓'}</span>
+        </div>
+        <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:var(--cyan);margin-bottom:4px;">${e.subject || 'N/A'}</div>
+        <div style="font-size:12px;color:#ddd;margin-bottom:4px;">${e.topic || 'N/A'}</div>
+        <div style="font-size:10px;color:var(--dim);">${srcIcon} ${e.source || 'N/A'} · ${e.sourceType || 'N/A'}</div>
+        ${imgCount > 0 ? `<div style="font-family:'Press Start 2P',monospace;font-size:5px;color:var(--magenta);margin-top:8px;">📎 ${imgCount} image${imgCount>1?'s':''} attached · <span style="color:var(--cyan);text-decoration:underline;">see the progress</span></div>` : ''}
+        ${galleryPreview}
+      </div>`;
+  }).join('');
+}
+
+function renderStudyLogFiltered(entries, subjectFilter) {
+  const containerId = subjectFilter ? 'studylog-jp-list' : 'studylog-list';
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const filtered = subjectFilter
+    ? entries.filter(e => (e.subject || '').toLowerCase().includes(subjectFilter.toLowerCase()))
+    : entries;
+
+  if (!filtered.length) {
+    container.innerHTML = `<div class="micro-entry"><div class="micro-text" style="color:var(--dim);">No entries for this subject yet.</div></div>`;
+    return;
+  }
+
+  // reutiliza el mismo render de renderStudyLog pero con índice correcto del array original
+  container.innerHTML = filtered.map(e => {
+    const i = entries.indexOf(e);
+    const imgCount = (e.images || []).length;
+    const srcIcon = { read:'📖', listen:'🎧', video:'🎬' }[e.sourceType] || '📌';
+    const galleryPreview = imgCount > 0
+      ? `<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;">
+          ${e.images.slice(0,4).map(src =>
+            `<img src="${src}" style="width:52px;height:52px;object-fit:cover;border:1px solid var(--border);"
+                  onerror="this.style.display='none'">`
+          ).join('')}
+          ${imgCount > 4 ? `<div style="width:52px;height:52px;background:#0a0a1e;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:6px;color:var(--dim);">+${imgCount-4}</div>` : ''}
+        </div>` : '';
+    return `
+      <div class="micro-entry" style="cursor:pointer;" onclick="openStudyDetail(${i})">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div class="micro-date">★ ${e.date || 'N/A'}</div>
+          <span style="font-size:16px;">${e.emoji || '📓'}</span>
+        </div>
+        <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:var(--cyan);margin-bottom:4px;">${e.subject || 'N/A'}</div>
+        <div style="font-size:12px;color:#ddd;margin-bottom:4px;">${e.topic || 'N/A'}</div>
+        <div style="font-size:10px;color:var(--dim);">${srcIcon} ${e.source || 'N/A'} · ${e.sourceType || 'N/A'}</div>
+        ${imgCount > 0 ? `<div style="font-family:'Press Start 2P',monospace;font-size:5px;color:var(--magenta);margin-top:8px;">📎 ${imgCount} image${imgCount>1?'s':''} · <span style="color:var(--cyan);">see the progress</span></div>` : ''}
+        ${galleryPreview}
+      </div>`;
+  }).join('');
+}
+
+function openStudyDetail(i) {
+  sfxOpen();
+  const e = (window._studyData || [])[i];
+  if (!e) return;
+
+  function ratingDots(n, max=5) {
+    return Array.from({length:max}, (_,j) =>
+      `<div class="rov-dot${j<n?' filled':''}"></div>`).join('');
+  }
+  function rRow(label, n) {
+    const val = (n != null && n !== '') ? n : null;
+    return `<div class="rov-r-item">
+      <div class="rov-r-label">${label}</div>
+      <div class="rov-r-dots">${val !== null ? ratingDots(val) : '<span style="color:var(--dim);font-size:8px;">N/A</span>'}</div>
+    </div>`;
+  }
+
+  const srcIcon  = { read:'📖', listen:'🎧', video:'🎬' }[e.sourceType] || '📌';
+  const imgCount = (e.images || []).length;
+
+  // galería completa
+const galleryFull = imgCount > 0
+    ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin-top:8px;">
+        ${e.images.map(src =>
+          `<a href="${src}" target="_blank" style="display:block;cursor:nesw-resize;">
+             <img src="${src}" style="width:100%;aspect-ratio:1/1;object-fit:cover;border:1px solid var(--border);transition:box-shadow .1s;"
+                  onmouseover="this.style.boxShadow='0 0 8px var(--cyan)'"
+                  onmouseout="this.style.boxShadow='none'"
+                  onerror="this.parentElement.style.display='none'">
+           </a>`
+        ).join('')}
+      </div>` : '';
+
+  const r = e.ratings || {};
+
+  document.getElementById('rov-content').innerHTML = `
+    <div class="rov-left">
+
+      <div class="rov-box">
+        <div class="rov-box-header">PROGRESS DETAILS</div>
+        <div class="rov-box-body">
+          <div class="rov-field">
+            <div class="rov-field-lbl">SUBJECT</div>
+            <div class="rov-field-val" style="color:var(--cyan)">${e.subject || 'N/A'}</div>
+          </div>
+          <div class="rov-field">
+            <div class="rov-field-lbl">TOPIC</div>
+            <div class="rov-field-val">${e.topic || 'N/A'}</div>
+          </div>
+          <div class="rov-field">
+            <div class="rov-field-lbl">SOURCE</div>
+            <div class="rov-field-val">${e.source || 'N/A'}</div>
+          </div>
+          <div class="rov-field" style="display:flex;gap:20px;">
+            <div>
+              <div class="rov-field-lbl">TYPE</div>
+              <div class="rov-field-val">${srcIcon} ${e.sourceType || 'N/A'}</div>
+            </div>
+            <div>
+              <div class="rov-field-lbl">DATE</div>
+              <div class="rov-field-val">${e.date || 'N/A'}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rov-box">
+        <div class="rov-box-header" style="text-align:center;">RATING</div>
+        <div class="rov-rating-grid">
+          ${rRow('Concentration', r.concentration)}
+          ${rRow('Difficulty',    r.difficulty)}
+          ${rRow('Learned',       r.learned)}
+          ${rRow('New Things',    r.newThings)}
+          ${rRow('Productive',    r.productive)}
+          ${rRow('Enjoyed',       r.enjoyed)}
+        </div>
+      </div>
+
+      <div class="rov-box">
+        <div class="rov-box-header" style="text-align:center;">SUMMARY</div>
+        <div class="rov-summary" style="font-style:normal;">${e.summary || 'N/A'}</div>
+      </div>
+
+      ${imgCount > 0 ? `
+      <div class="rov-box">
+        <div class="rov-box-header" style="text-align:center;">📎 IMAGES (${imgCount})</div>
+        <div style="padding:10px;">${galleryFull}</div>
+      </div>` : ''}
+
+    </div>
+
+    <div class="rov-right">
+
+      <div class="rov-box">
+        <div class="rov-box-header cyan">FAVORITE THINGS I LEARNED</div>
+        <div class="rov-quote" style="font-size:13px;">
+          ${e.favorites || 'N/A'}
+        </div>
+      </div>
+
+      <div class="rov-box">
+        <div class="rov-box-header cyan">THOUGHTS</div>
+        <div class="rov-thoughts">${e.thoughts || 'N/A'}</div>
+      </div>
+
+    </div>`;
+
+  document.getElementById('rov').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+} 
+
+  // ── SOUND ENGINE (sin archivos externos) ──
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let _actx = null;
+
+function getActx() {
+  if (!_actx) _actx = new AudioCtx();
+  return _actx;
+}
+
+function playBeep(freq, duration, type='square', vol=0.15) {
+  try {
+    const ctx  = getActx();
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type      = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+  } catch(e) {}
+}
+
+// Sonidos específicos
+function sfxOpen()    { playBeep(880, 0.08); setTimeout(() => playBeep(1100, 0.08), 60); }
+function sfxClose()   { playBeep(660, 0.08); setTimeout(() => playBeep(440, 0.10), 60); }
+function sfxStart()   { [523,659,784,1047].forEach((f,i) => setTimeout(() => playBeep(f, 0.10), i*70)); }
+function sfxOk()      { playBeep(1047, 0.06); setTimeout(() => playBeep(1319, 0.12), 50); }
+function sfxHover()   { playBeep(1200, 0.04, 'sine', 0.08); }
+function sfxClick()   { playBeep(600, 0.05, 'square', 0.12); }
+</script></body>
+</html>

@@ -1,0 +1,17 @@
+[
+  {
+    "date": "21/Apr/2026",
+    "mood": { "value": 80, "label": "happy" },
+    "stats": [
+      { "icon": "🎮", "label": "GAMING", "value": 90, "text": "playing" },
+      { "icon": "🌿", "label": "RELAX", "value": 60, "text": "60%" }
+    ],
+    "thought": "Escribe tus pensamientos aquí solo si quieres."
+  },
+  {
+    "date": "20/Apr/2026",
+    "mood": { "value": 30, "label": "tired" },
+    "stats": [],
+    "thought": ""
+  }
+]

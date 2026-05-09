@@ -1,0 +1,12 @@
+[
+  {
+    "id": "thought-001",
+    "type": "thought",
+    "title": "Título del pensamiento",
+    "date": "2026-04-20",
+    "writingType": "recent thought",
+    "body": "Escribe tu pensamiento aquí...",
+    "thoughts": "Reflexión adicional...",
+    "linked_titles": []
+  }
+]

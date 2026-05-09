@@ -1,0 +1,62 @@
+[
+  {
+    "emoji": "📖",
+    "title": "Nombre del libro",
+    "subtitle": "Nombre del autor",
+    "genres": ["fiction", "cozy"],
+    "hook": "La atmósfera es increíble, no puedo parar",
+    "chapter": "Cap. 12",
+    "progress": 45,
+    "status": "reading",
+    "state": "ongoing",
+    "link": "https://ejemplo.com"
+  },
+  {
+    "emoji": "🎮",
+    "title": "Nombre del juego",
+    "subtitle": "Nombre del estudio",
+    "genres": ["indie", "rpg"],
+    "hook": "El pixel art y la historia son preciosos",
+    "chapter": "World 2",
+    "progress": 22,
+    "status": "playing",
+    "state": "ongoing",
+    "link": ""
+  },
+  {
+    "emoji": "🎬",
+    "title": "Nombre de la serie",
+    "subtitle": "Temporada 2",
+    "genres": ["drama"],
+    "hook": "La escritura de personajes es muy buena",
+    "chapter": "Ep. 5",
+    "progress": 60,
+    "status": "watching",
+    "state": "ongoing",
+    "link": ""
+  },
+  {
+    "emoji": "🌸",
+    "title": "Título del manga",
+    "subtitle": "Vol. 3",
+    "genres": ["manga", "slice of life"],
+    "hook": "Me hace sentir cosas",
+    "chapter": "Cap. 20",
+    "progress": 80,
+    "status": "reading",
+    "state": "ongoing",
+    "link": ""
+  },
+  {
+    "emoji": "🎵",
+    "title": "Álbum o playlist",
+    "subtitle": "Artista",
+    "genres": ["vocaloid", "jpop"],
+    "hook": null,
+    "chapter": null,
+    "progress": null,
+    "status": "listening",
+    "state": "ongoing",
+    "link": ""
+  }
+]

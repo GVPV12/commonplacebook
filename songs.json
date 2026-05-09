@@ -1,0 +1,14 @@
+[
+  {
+    "type": "song",
+    "title": "Título de la canción",
+    "artist": "Artista",
+    "album": "Álbum",
+    "year": "2023",
+    "language": "Japanese",
+    "translation": "Traducción del título",
+    "body": "Fragmento de letra o significado...",
+    "thoughts": "Por qué esta canción te importa.",
+    "link": ""
+  }
+]
