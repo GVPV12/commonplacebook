@@ -1,15 +1,15 @@
 # Digital Commonplacebook
-Tracker and digital notebook to keep all your thoughts and stuff you consume like book, games, movies, etc in one place. Also helpful if you want to be more conscious of what you consume.
+Tracker and digital notebook to keep all your thoughts and stuff you consume like book, games, movies, etc in one place. Also helpful if you want to be more conscious of what you consume. Instead on publishing all of that on apps or social media that keeps stealing your data to sell stuff to you, you can just run this locally or host in a personally website in which you have all control of your data and personal info.
 
 <br>
 <img width="960" height="444" alt="image" src="https://github.com/user-attachments/assets/8b378c4c-783f-45a6-ab96-be654b7d712b" />
 <br>
 
-A personal digital commonplace book built with vanilla HTML, CSS and JavaScript. Vaporwave aesthetic, retro OS-inspired, JSON-driven. No frameworks, no build tools — just files.
+This personal digital commonplace book is built with vanilla HTML, CSS and JavaScript. Vaporwave aesthetic, retro OS-inspired, JSON-driven. No frameworks, no build tools, just files.
 
 How to use it? Basically you edit the .json that corresponds to certain "page" of the commonplace book. Also the commonplace book takes information externally with cjs scripts for goodreads recent books review and status from statuscafe (similar to twitter but is a lot better and retro). 
 
-I tried to use a script to extract a .json from a backloggd account but it didn't work. If anyone would like to know how to implement it, i'll appreciate it.
+I tried to use a script to extract a .json from a backloggd account but it didn't work. If anyone would like to implement it, i'll appreciate it.
 
 **Live demo:** [starmoon.nekoweb.org/commonplace_book.html](https://starmoon.nekoweb.org/commonplace_book.html)
 
