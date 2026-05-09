@@ -1,6 +1,10 @@
 # Digital Commonplacebook
 Tracker and digital notebook to keep all your thoughts and stuff you consume like book, games, movies, etc in one place. Also helpful if you want to be more conscious of what you consume.
 
+<br>
+<img width="960" height="444" alt="image" src="https://github.com/user-attachments/assets/8b378c4c-783f-45a6-ab96-be654b7d712b" />
+<br>
+
 A personal digital commonplace book built with vanilla HTML, CSS and JavaScript. Vaporwave aesthetic, retro OS-inspired, JSON-driven. No frameworks, no build tools — just files.
 
 How to use it? Basically you edit the .json that corresponds to certain "page" of the commonplace book. Also the commonplace book takes information externally with cjs scripts for goodreads recent books review and status from statuscafe (similar to twitter but is a lot better and retro). 
@@ -73,6 +77,8 @@ What you're currently reading, playing, watching or listening to.
 | `link` | no | URL |
 
 ---
+
+<img width="1916" height="884" alt="image" src="https://github.com/user-attachments/assets/b836fb41-474f-4a9b-b0e1-8f1556c97f1b" />
 
 ### `biblioteca.json`
 
@@ -213,6 +219,9 @@ Short diary-style entries with mood and activity bars.
 All fields are optional. An entry with just a `date` is valid.
 
 ---
+
+<img width="1919" height="878" alt="image" src="https://github.com/user-attachments/assets/285c3674-7e5c-4c8e-86ea-7fcda5e003ae" />
+
 
 ### `studylog.json`
 
