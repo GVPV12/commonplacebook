@@ -1,5 +1,5 @@
 # Digital Commonplacebook
-Tracker and digital notebook to keep all your thoughts and stuff you consume like book, games, movies, etc in one place. Also helpful if you want to be more conscious of what you consume. Instead on publishing all of that on apps or social media that keeps stealing your data to sell stuff to you, you can just run this locally or host in a personally website in which you have all control of your data and personal info.
+Tracker and digital notebook to keep all your thoughts and stuff you consume like book, games, movies, etc in one place. Also helpful if you want to be more conscious of what you consume. Instead of publishing all of that on apps or social media that keeps stealing your data to sell stuff to you, you can just run this locally or host in a personally website in which you have all control of your data and personal info.
 
 <br>
 <img width="960" height="444" alt="image" src="https://github.com/user-attachments/assets/8b378c4c-783f-45a6-ab96-be654b7d712b" />
